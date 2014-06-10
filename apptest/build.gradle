@@ -11,8 +11,7 @@ buildscript {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.1.0"
-
+    buildToolsVersion '19.1.0'
     productFlavors {
         x86 {
             ndk {
@@ -24,7 +23,6 @@ android {
                 abiFilters "armeabi-v7a", "armeabi"
             }
         }
-
     }
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
@@ -34,8 +32,6 @@ android {
         exclude 'META-INF/notice.txt'
         exclude 'META-INF/LGPL2.1'
     }
-
-
     buildTypes {
         defaultConfig {
             minSdkVersion 10
@@ -48,10 +44,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    defaultConfig {}
 }
 
 dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:19.+'
     compile 'com.google.android.gms:play-services:4.4.52'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:support-v4:19.+'
 }

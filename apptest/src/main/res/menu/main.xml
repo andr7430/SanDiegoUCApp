@@ -2,6 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.esri.UC.MainActivity" >
+
+    <!-- Search, should appear as action button -->
+    <item android:id="@+id/action_locate"
+        android:icon="@drawable/ic_action_locate"
+        android:title="@string/locate_button"
+        app:showAsAction="ifRoom"  />
     
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"

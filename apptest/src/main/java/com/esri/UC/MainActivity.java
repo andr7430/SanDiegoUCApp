@@ -1,10 +1,13 @@
 package com.esri.UC;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -13,8 +16,11 @@ import com.esri.android.geotrigger.GeotriggerApiListener;
 import com.esri.android.geotrigger.GeotriggerBroadcastReceiver;
 import com.esri.android.geotrigger.GeotriggerService;
 import com.esri.android.geotrigger.TriggerBuilder;
+import com.esri.android.map.LocationDisplayManager;
+import com.esri.android.map.LocationService;
 import com.esri.android.map.MapView;
 import com.esri.android.map.ags.ArcGISTiledMapServiceLayer;
+import com.esri.core.symbol.SimpleMarkerSymbol;
 
 import org.apache.http.StatusLine;
 import org.json.JSONException;
@@ -59,6 +65,34 @@ public class MainActivity extends ActionBarActivity implements
         mMapView = (MapView) findViewById(R.id.map);
         mMapView.addLayer(new ArcGISTiledMapServiceLayer(
                 "http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer"));
+        mMapView.centerAndZoom(-13042050, 3856352, 10);
+
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_locate:
+                try {
+                    locateMe();
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return true;
+                }
+            case R.id.action_settings:
+                switchToSettings();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -221,5 +255,20 @@ public class MainActivity extends ActionBarActivity implements
                     }
             );
         }
+    }
+
+    public void locateMe() throws Exception {
+        LocationDisplayManager locationDisplayManager = mMapView.getLocationDisplayManager();
+        //locationDisplayManager.setDefaultSymbol(new SimpleMarkerSymbol(Color.BLUE, 15, SimpleMarkerSymbol.STYLE.CIRCLE));
+        locationDisplayManager.setShowLocation(true);
+        locationDisplayManager.start();
+        locationDisplayManager.setAutoPanMode(LocationDisplayManager.AutoPanMode.LOCATION);
+
+    }
+
+    public void switchToSettings(){
+        Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
+        //myIntent.putExtra("key", value); //Optional parameters
+        MainActivity.this.startActivity(myIntent);
     }
 }

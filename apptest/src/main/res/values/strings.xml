@@ -12,5 +12,6 @@
     <string name="enable_wifi">Please enable wifi for accurate locations!</string>
     <string name="settings">Settings</string>
     <string name="cancel">Cancel</string>
+    <string name="locate_button">Locate</string>
 
 </resources>
