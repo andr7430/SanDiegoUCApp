@@ -36,7 +36,7 @@ public class MainActivity extends ActionBarActivity implements
     private static final String TAG = "GeotriggerActivity";
 
     // Create a new application at https://developers.arcgis.com/en/applications
-    private static final String AGO_CLIENT_ID = "g7L7BthrcX9vkxwG";
+    private static final String AGO_CLIENT_ID = "eVCAwCf3YFLqnOfs";
 
     // The project number from https://cloud.google.com/console
     private static final String GCM_SENDER_ID = "540929246562";

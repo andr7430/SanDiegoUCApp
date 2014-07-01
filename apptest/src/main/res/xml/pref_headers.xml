@@ -11,7 +11,7 @@
         android:title="@string/pref_header_notifications" />
 
     <header
-        android:fragment="com.esri.UC.SettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="com.esri.UC.SettingsActivity$POIPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
 
 </preference-headers>

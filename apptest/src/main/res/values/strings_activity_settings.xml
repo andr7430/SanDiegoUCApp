@@ -56,4 +56,23 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+
+
+
+    <string name="pref_poi_architecture">Architecture</string>
+    <string name="pref_poi_beach">Beach</string>
+    <string name="pref_poi_cafe">Cafe</string>
+    <string name="pref_poi_esri_events">Esri Events</string>
+    <string name="pref_poi_historic_site">Historic Site</string>
+    <string name="pref_poi_infrastructure">Infrastructure</string>
+    <string name="pref_poi_market">Market</string>
+    <string name="pref_poi_museum">Museum</string>
+    <string name="pref_poi_neighborhood">Neighborhood</string>
+    <string name="pref_poi_outdoors">Outdoors</string>
+    <string name="pref_poi_park">Park</string>
+    <string name="pref_poi_restaurant">Restaurant</string>
+    <string name="pref_poi_sculpture">Sculpture</string>
+    <string name="pref_poi_shopping_dining">Shopping and Dining</string>
+    <string name="pref_poi_store">Store</string>
+
 </resources>
