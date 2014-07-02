@@ -12,6 +12,6 @@
 
     <header
         android:fragment="com.esri.UC.SettingsActivity$POIPreferenceFragment"
-        android:title="@string/pref_header_data_sync" />
+        android:title="@string/pref_header_poi" />
 
 </preference-headers>

@@ -20,7 +20,14 @@ import android.text.TextUtils;
 import android.util.Log;
 
 
+import com.esri.android.geotrigger.GeotriggerApiClient;
+import com.esri.android.geotrigger.GeotriggerApiListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
+import java.util.Set;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -41,6 +48,8 @@ public class SettingsActivity extends PreferenceActivity {
      * shown on tablets.
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
+
+    private static enum ALL_POI{poi_Architecture, poi_Beach, poi_Cafe, poi_Esri_Events, poi_Historic_Site, poi_Infrastructure, poi_Market, poi_Museum, poi_Neighborhood, poi_Outdoors, poi_Park, poi_Restaurant, poi_Sculpture, poi_Shopping_and_Dining, poi_Store};
 
 
     @Override
@@ -66,26 +75,43 @@ public class SettingsActivity extends PreferenceActivity {
         // Add 'general' preferences.
         addPreferencesFromResource(R.xml.pref_general);
 
-        // Add 'notifications' preferences, and a corresponding header.
+        // Add 'data and sync' preferences, and a corresponding header.
         PreferenceCategory fakeHeader = new PreferenceCategory(this);
+        fakeHeader.setTitle(R.string.pref_header_poi);
+        getPreferenceScreen().addPreference(fakeHeader);
+        addPreferencesFromResource(R.xml.pref_poi);
+
+        // Add 'notifications' preferences, and a corresponding header.
+        fakeHeader = new PreferenceCategory(this);
         fakeHeader.setTitle(R.string.pref_header_notifications);
         getPreferenceScreen().addPreference(fakeHeader);
         addPreferencesFromResource(R.xml.pref_notification);
 
-        // Add 'data and sync' preferences, and a corresponding header.
-        fakeHeader = new PreferenceCategory(this);
-        fakeHeader.setTitle(R.string.pref_header_data_sync);
-        getPreferenceScreen().addPreference(fakeHeader);
-        addPreferencesFromResource(R.xml.pref_poi);
+
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
         bindPreferenceSummaryToValue(findPreference("example_text"));
-        bindPreferenceSummaryToValue(findPreference("example_list"));
+        //bindPreferenceSummaryToValue(findPreference("example_list"));
         bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-        //bindPreferenceSummaryToValue(findPreference("poi_Architecture"));
+
+        //bind the trigger status
         bindTriggerToValue(findPreference("poi_Architecture"));
+        bindTriggerToValue(findPreference("poi_Beach"));
+        bindTriggerToValue(findPreference("poi_Cafe"));
+        bindTriggerToValue(findPreference("poi_Esri_Events"));
+        bindTriggerToValue(findPreference("poi_Historic_Site"));
+        bindTriggerToValue(findPreference("poi_Infrastructure"));
+        bindTriggerToValue(findPreference("poi_Market"));
+        bindTriggerToValue(findPreference("poi_Museum"));
+        bindTriggerToValue(findPreference("poi_Neighborhood"));
+        bindTriggerToValue(findPreference("poi_Outdoors"));
+        bindTriggerToValue(findPreference("poi_Park"));
+        bindTriggerToValue(findPreference("poi_Restaurant"));
+        bindTriggerToValue(findPreference("poi_Sculpture"));
+        bindTriggerToValue(findPreference("poi_Shopping_and_Dining"));
+        bindTriggerToValue(findPreference("poi_Store"));
     }
 
     /** {@inheritDoc} */
@@ -111,19 +137,20 @@ public class SettingsActivity extends PreferenceActivity {
      * "simplified" settings UI should be shown.
      */
     private static boolean isSimplePreferences(Context context) {
-        return ALWAYS_SIMPLE_PREFS
-                || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-                || !isXLargeTablet(context);
+        return true;
+//        return ALWAYS_SIMPLE_PREFS
+//                || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
+//                || !isXLargeTablet(context);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<Header> target) {
-        if (!isSimplePreferences(this)) {
-            loadHeadersFromResource(R.xml.pref_headers, target);
-        }
-    }
+//    /** {@inheritDoc} */
+//    @Override
+//    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+//    public void onBuildHeaders(List<Header> target) {
+//        if (!isSimplePreferences(this)) {
+//            loadHeadersFromResource(R.xml.pref_headers, target);
+//        }
+//    }
 
     /**
      * A preference value change listener that updates the preference's summary
@@ -199,64 +226,264 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
 
-    private static Preference.OnPreferenceChangeListener sBindTriggerToValueListener = new Preference.OnPreferenceChangeListener() {
+
+    private Preference.OnPreferenceChangeListener sBindTriggerToValueListener = new Preference.OnPreferenceChangeListener() {
 
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            Log.d("Trigger Value", newValue.toString());
+            Log.d(preference.getKey().toString(), newValue.toString());
+            ALL_POI tempval = ALL_POI.valueOf(preference.getKey());
+            switch (tempval){
+                case poi_Architecture:
+                    if(newValue.equals(true)){
+                        addTag("Architecture");
+
+                    }else{
+                        removeTag("Architecture");
+                    }
+                    break;
+                case poi_Beach:
+                    if(newValue.equals(true)){
+                        addTag("Beach");
+
+                    }else{
+                        removeTag("Beach");
+                    }
+                    break;
+                case poi_Cafe:
+                    if(newValue.equals(true)){
+                        addTag("Cafe");
+
+                    }else{
+                        removeTag("Cafe");
+                    }
+                    break;
+                case poi_Esri_Events:
+                    if(newValue.equals(true)){
+                        addTag("esrievent");
+
+                    }else{
+                        removeTag("esrievent");
+                    }
+                    break;
+                case poi_Historic_Site:
+                    if(newValue.equals(true)){
+                        addTag("Historic Site");
+
+                    }else{
+                        removeTag("Historic Site");
+                    }
+                    break;
+                case poi_Infrastructure:
+                    if(newValue.equals(true)){
+                        addTag("Infrastructure");
+
+                    }else{
+                        removeTag("Infrastructure");
+                    }
+                    break;
+                case poi_Market:
+                    if(newValue.equals(true)){
+                        addTag("Market");
+
+                    }else{
+                        removeTag("Market");
+                    }
+                    break;
+                case poi_Museum:
+                    if(newValue.equals(true)){
+                        addTag("Museum");
+
+                    }else{
+                        removeTag("Museum");
+                    }
+                    break;
+                case poi_Neighborhood:
+                    if(newValue.equals(true)){
+                        addTag("Neighborhood");
+
+                    }else{
+                        removeTag("Neighborhood");
+                    }
+                    break;
+                case poi_Outdoors:
+                    if(newValue.equals(true)){
+                        addTag("Outdoors");
+
+                    }else{
+                        removeTag("Outdoors");
+                    }
+                    break;
+                case poi_Park:
+                    if(newValue.equals(true)){
+                        addTag("Park");
+
+                    }else{
+                        removeTag("Park");
+                    }
+                    break;
+                case poi_Restaurant:
+                    if(newValue.equals(true)){
+                        addTag("Restaurant");
+
+                    }else{
+                        removeTag("Restaurant");
+                    }
+                    break;
+                case poi_Sculpture:
+                    if(newValue.equals(true)){
+                        addTag("Sculpture");
+
+                    }else{
+                        removeTag("Sculpture");
+                    }
+                    break;
+                case poi_Shopping_and_Dining:
+                    if(newValue.equals(true)){
+                        addTag("Shopping & Dining");
+
+                    }else{
+                        removeTag("Shopping & Dining");
+                    }
+                    break;
+                case poi_Store:
+                    if(newValue.equals(true)){
+                        addTag("Store");
+
+                    }else{
+                        removeTag("Store");
+                    }
+                    break;
+            }
+
+
             return true;
         }
     };
 
-    private static void bindTriggerToValue(Preference preference){
+    private void bindTriggerToValue(Preference preference){
         preference.setOnPreferenceChangeListener(sBindTriggerToValueListener);
-        Boolean boolval = new Boolean(true);
-
         sBindTriggerToValueListener.onPreferenceChange(preference,  PreferenceManager
                 .getDefaultSharedPreferences(preference.getContext())
                 .getBoolean(preference.getKey(), false));
-
     }
 
 
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class GeneralPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
+    public void addTag(String tagname){
+        JSONObject params = new JSONObject();
+        try {
+            params.put("addTags", tagname);
+        } catch (JSONException e) {
+            Log.e("Addtag", "Error creating device update parameters.", e);
         }
+
+        GeotriggerApiClient.runRequest(this, "device/update", params, new GeotriggerApiListener() {
+            @Override
+            public void onSuccess(JSONObject data) {
+                Log.d("Addtag", "Device updated: " + data.toString());
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                Log.d("Addtag", "Failed to update device.", error);
+            }
+        });
     }
+    public void removeTag(String tagname){
+        JSONObject params = new JSONObject();
+        try {
+            params.put("removeTags", tagname);
 
-    /**
-     * This fragment shows notification preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class NotificationPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_notification);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+        } catch (JSONException e) {
+            Log.e("Removetag", "Error creating device update parameters.", e);
         }
+
+        GeotriggerApiClient.runRequest(this, "device/update", params, new GeotriggerApiListener() {
+            @Override
+            public void onSuccess(JSONObject data) {
+                Log.d("Removetag", "Device updated: " + data.toString());
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                Log.d("Removetag", "Failed to update device.", error);
+            }
+        });
     }
+//
+//    /**
+//     * This fragment shows general preferences only. It is used when the
+//     * activity is showing a two-pane settings UI.
+//     */
+//    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+//    public static class GeneralPreferenceFragment extends PreferenceFragment {
+//        @Override
+//        public void onCreate(Bundle savedInstanceState) {
+//            super.onCreate(savedInstanceState);
+//            addPreferencesFromResource(R.xml.pref_general);
+//
+//            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+//            // to their values. When their values change, their summaries are
+//            // updated to reflect the new value, per the Android Design
+//            // guidelines.
+//            bindPreferenceSummaryToValue(findPreference("example_text"));
+//            //bindPreferenceSummaryToValue(findPreference("example_list"));
+//        }
+//    }
+//
+//
+//    /**
+//     * This fragment shows data and sync preferences only. It is used when the
+//     * activity is showing a two-pane settings UI.
+//     */
+//    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+//    public static class POIPreferenceFragment extends PreferenceFragment {
+//        @Override
+//        public void onCreate(Bundle savedInstanceState) {
+//            super.onCreate(savedInstanceState);
+//            addPreferencesFromResource(R.xml.pref_poi);
+//
+//            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+//            // to their values. When their values change, their summaries are
+//            // updated to reflect the new value, per the Android Design
+//            // guidelines.
+//            //bind the trigger status
+//            bindTriggerToValue(findPreference("poi_Architecture"));
+//            bindTriggerToValue(findPreference("poi_Beach"));
+//            bindTriggerToValue(findPreference("poi_Cafe"));
+//            bindTriggerToValue(findPreference("poi_Esri_Events"));
+//            bindTriggerToValue(findPreference("poi_Historic_Site"));
+//            bindTriggerToValue(findPreference("poi_Infrastructure"));
+//            bindTriggerToValue(findPreference("poi_Market"));
+//            bindTriggerToValue(findPreference("poi_Museum"));
+//            bindTriggerToValue(findPreference("poi_Neighborhood"));
+//            bindTriggerToValue(findPreference("poi_Outdoors"));
+//            bindTriggerToValue(findPreference("poi_Park"));
+//            bindTriggerToValue(findPreference("poi_Restaurant"));
+//            bindTriggerToValue(findPreference("poi_Sculpture"));
+//            bindTriggerToValue(findPreference("poi_Shopping_and_Dining"));
+//            bindTriggerToValue(findPreference("poi_Store"));
+//        }
+//    }
+//
+//    /**
+//     * This fragment shows notification preferences only. It is used when the
+//     * activity is showing a two-pane settings UI.
+//     */
+//    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+//    public static class NotificationPreferenceFragment extends PreferenceFragment {
+//        @Override
+//        public void onCreate(Bundle savedInstanceState) {
+//            super.onCreate(savedInstanceState);
+//            addPreferencesFromResource(R.xml.pref_notification);
+//
+//            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+//            // to their values. When their values change, their summaries are
+//            // updated to reflect the new value, per the Android Design
+//            // guidelines.
+//            bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+//        }
+//    }
 
 //    /**
 //     * This fragment shows data and sync preferences only. It is used when the
@@ -277,22 +504,4 @@ public class SettingsActivity extends PreferenceActivity {
 //        }
 //    }
 
-    /**
-     * This fragment shows data and sync preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class POIPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_poi);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("poi"));
-        }
-    }
 }

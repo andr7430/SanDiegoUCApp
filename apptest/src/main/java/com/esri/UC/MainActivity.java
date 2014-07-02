@@ -1,5 +1,6 @@
 package com.esri.UC;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
@@ -127,7 +128,9 @@ public class MainActivity extends ActionBarActivity implements
     public void onReady() {
         // Called when the device has registered with ArcGIS Online and is ready
         // to make requests to the Geotrigger Service API.
-        Toast.makeText(this, "GeotriggerService ready!", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "GeotriggerService ready!", Toast.LENGTH_SHORT).show();
+
+
         Log.d(TAG, "GeotriggerService ready!");
     }
 
@@ -137,6 +140,7 @@ public class MainActivity extends ActionBarActivity implements
         // Android's native location services. The isOnDemand parameter lets you
         // determine if this location update was a result of calling
         // GeotriggerService.requestOnDemandUpdate()
+
         Toast.makeText(this, "Location Update Received!"+ GeotriggerService.getDeviceId(this),
                 Toast.LENGTH_SHORT).show();
         Log.d(TAG, String.format("Location update received: (%f, %f)",
@@ -146,54 +150,54 @@ public class MainActivity extends ActionBarActivity implements
             mShouldSendNotification = false;
 
 
-            //Making a Get Request
-            Map<String, String> arg = new HashMap<String, String>();
-            arg.put("f", "json");
-
-            NetUtils.getJson(this,"http://sampleserver6.arcgisonline.com/arcgis/rest/services?f=json",null ,null, new NetUtils.JsonRequestListener() {
-                @Override
-                public void onSuccess(JSONObject json) {
-                    Log.i(TAG, "reqeust/json success: " + json);
-                }
-
-                @Override
-                public void onError(JSONObject json, StatusLine status) {
-                    Log.i(TAG, "reqeust/json error: " + json);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    Log.i(TAG, "reqeust/json failure: " + error);
-                }
-            });
-
-            //Make a POST Request
-            JSONObject params1 = new JSONObject();
-            try {
-                params1.put("where", "1=1");
-                params1.put("geometryType", "esriGeometryEnvelope");
-                params1.put("f", "json");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-
-            NetUtils.jsonPost(this,"http://sampleserver6.arcgisonline.com/arcgis/rest/services/911CallsHotspot/MapServer/1/query",params1,null, new NetUtils.JsonRequestListener() {
-                @Override
-                public void onSuccess(JSONObject json) {
-                    Log.i(TAG, "reqeust/json success: " + json);
-                }
-
-                @Override
-                public void onError(JSONObject json, StatusLine status) {
-                    Log.i(TAG, "reqeust/json error: " + json);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    Log.i(TAG, "reqeust/json failure: " + error);
-                }
-            });
+//            //Making a Get Request
+//            Map<String, String> arg = new HashMap<String, String>();
+//            arg.put("f", "json");
+//
+//            NetUtils.getJson(this,"http://sampleserver6.arcgisonline.com/arcgis/rest/services?f=json",null ,null, new NetUtils.JsonRequestListener() {
+//                @Override
+//                public void onSuccess(JSONObject json) {
+//                    Log.i(TAG, "reqeust/json success: " + json);
+//                }
+//
+//                @Override
+//                public void onError(JSONObject json, StatusLine status) {
+//                    Log.i(TAG, "reqeust/json error: " + json);
+//                }
+//
+//                @Override
+//                public void onFailure(Throwable error) {
+//                    Log.i(TAG, "reqeust/json failure: " + error);
+//                }
+//            });
+//
+//            //Make a POST Request
+//            JSONObject params1 = new JSONObject();
+//            try {
+//                params1.put("where", "1=1");
+//                params1.put("geometryType", "esriGeometryEnvelope");
+//                params1.put("f", "json");
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//
+//
+//            NetUtils.jsonPost(this,"http://sampleserver6.arcgisonline.com/arcgis/rest/services/911CallsHotspot/MapServer/1/query",params1,null, new NetUtils.JsonRequestListener() {
+//                @Override
+//                public void onSuccess(JSONObject json) {
+//                    Log.i(TAG, "reqeust/json success: " + json);
+//                }
+//
+//                @Override
+//                public void onError(JSONObject json, StatusLine status) {
+//                    Log.i(TAG, "reqeust/json error: " + json);
+//                }
+//
+//                @Override
+//                public void onFailure(Throwable error) {
+//                    Log.i(TAG, "reqeust/json failure: " + error);
+//                }
+//            });
 
 
 

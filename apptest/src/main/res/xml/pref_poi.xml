@@ -7,73 +7,73 @@
         android:summary=""
         android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Beach"-->
-        <!--android:title="@string/pref_poi_beach"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Beach"
+        android:title="@string/pref_poi_beach"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Cafe"-->
-        <!--android:title="@string/pref_poi_cafe"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Cafe"
+        android:title="@string/pref_poi_cafe"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="/poi_Esri_Events"-->
-        <!--android:title="@string/pref_poi_esri_events"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Esri_Events"
+        android:title="@string/pref_poi_esri_events"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Historic_Site"-->
-        <!--android:title="@string/pref_poi_historic_site"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Historic_Site"
+        android:title="@string/pref_poi_historic_site"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Infrastructure"-->
-        <!--android:title="@string/pref_poi_infrastructure"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Infrastructure"
+        android:title="@string/pref_poi_infrastructure"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Market"-->
-        <!--android:title="@string/pref_poi_market"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Market"
+        android:title="@string/pref_poi_market"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Museum"-->
-        <!--android:title="@string/pref_poi_museum"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Museum"
+        android:title="@string/pref_poi_museum"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Neighborhood"-->
-        <!--android:title="@string/pref_poi_neighborhood"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Neighborhood"
+        android:title="@string/pref_poi_neighborhood"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Outdoors"-->
-        <!--android:title="@string/pref_poi_outdoors"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Outdoors"
+        android:title="@string/pref_poi_outdoors"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Park"-->
-        <!--android:title="@string/pref_poi_park"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Park"
+        android:title="@string/pref_poi_park"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Restaurant"-->
-        <!--android:title="@string/pref_poi_restaurant"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Restaurant"
+        android:title="@string/pref_poi_restaurant"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Sculpture"-->
-        <!--android:title="@string/pref_poi_sculpture"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Sculpture"
+        android:title="@string/pref_poi_sculpture"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Shopping_and_Dining"-->
-        <!--android:title="@string/pref_poi_shopping_dining"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Shopping_and_Dining"
+        android:title="@string/pref_poi_shopping_dining"
+        android:defaultValue="true" />
 
-    <!--<CheckBoxPreference-->
-        <!--android:key="poi_Store"-->
-        <!--android:title="@string/pref_poi_store"-->
-        <!--android:defaultValue="true" />-->
+    <CheckBoxPreference
+        android:key="poi_Store"
+        android:title="@string/pref_poi_store"
+        android:defaultValue="true" />
 </PreferenceScreen>
