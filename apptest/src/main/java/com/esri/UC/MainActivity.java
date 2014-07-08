@@ -76,9 +76,6 @@ public class MainActivity extends ActionBarActivity implements
     private boolean mShouldSendNotification;
     MapView mMapView;
 
-//    private MapViewHelper mMapViewHelper;
-//    private PopupFragment mPopupFragment;
-
     //for the popup
     private PopupContainer popupContainer;
     private PopupDialog popupDialog;
@@ -146,55 +143,6 @@ public class MainActivity extends ActionBarActivity implements
                 }
             }
         });
-//        mMapView.setOnStatusChangedListener(new OnStatusChangedListener() {
-//
-//            private static final long serialVersionUID = 1L;
-//
-//            @Override
-//            public void onStatusChanged(Object source, STATUS status) {
-//                if ((status == OnStatusChangedListener.STATUS.INITIALIZED) && (source == mMapView)) {
-//                    // Create a MapViewHelper object once the map view has been initialized.
-//                    mMapViewHelper = new MapViewHelper(mMapView);
-//                    Log.d("OnstatusChange", "statuschagned");
-//                }
-//            }
-//        });
-//
-//        mMapView.setOnSingleTapListener(new OnSingleTapListener() {
-//
-//            private static final long serialVersionUID = 1L;
-//
-//            @Override
-//            public void onSingleTap(float x, float y) {
-//                if (!mMapView.isLoaded())
-//                    return;
-//
-//                mPopupFragment = new PopupFragment(mMapView);
-//                LayerQueryTask queryTask = new LayerQueryTask(mMapView, mPopupFragment);
-//                queryTask.queryLayers(x, y, 20, true);
-//            }
-//        });
-//
-//
-//
-//        // Query all the layers and display pop-up with default UI using MapViewHelper
-//        // using a helper class of Application Toolkit.
-//        mMapView.setOnLongPressListener(new OnLongPressListener() {
-//
-//            private static final long serialVersionUID = 1L;
-//
-//            @Override
-//            public boolean onLongPress(float x, float y) {
-//
-//                mPopupFragment = null;
-//                // The helper class from Application Toolkit will loop through and query each layer in the mapview.
-//                // A pop-up will be created for each feature in the query result and will be added to a PopupContainer.
-//                // The user-define PopupCreateListerner will be called when a pop-up is created.
-//                // User can put their logic in the PopupCreateListerner to display the pop-ups.
-//                mMapViewHelper.createPopup(x, y, new SimplePopupCreateListener());
-//                return true;
-//            }
-//        });
     }
 
 
@@ -579,29 +527,6 @@ public class MainActivity extends ActionBarActivity implements
 
     }
 }
-
-
-
-//    // Display pop-up fragment on a UI thread.
-//    private class SimplePopupCreateListener implements PopupCreateListener {
-//
-//        @Override
-//        public void onResult(final PopupContainer container) {
-//            if ((container != null) && (container.getPopupCount() > 0)) {
-//                ((Activity) MainActivity.this).runOnUiThread(new Runnable() {
-//
-//                    @Override
-//                    public void run() {
-//                        if (mPopupFragment == null ) {
-//                            mPopupFragment = new PopupFragment(mMapView, container);
-//                            mPopupFragment.show();
-//                        }
-//                    }
-//                });
-//            }
-//        }
-//
-//    }
 
 
 //    @Override

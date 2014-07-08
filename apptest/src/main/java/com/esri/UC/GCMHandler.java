@@ -1,6 +1,8 @@
 package com.esri.UC;
 
+import android.app.TaskStackBuilder;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -34,6 +36,12 @@ public class GCMHandler extends GeotriggerBroadcastReceiver {
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setContentTitle("Geotrigger Notification")
                         .setContentText(notification.get("text").toString());
+
+//        Intent resultIntet = new Intent(context, MainActivity.class);
+//
+//        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+//        stackBuilder.addParentStack(MainActivity.class);
+
 
 
 
