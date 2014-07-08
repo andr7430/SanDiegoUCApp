@@ -1,9 +1,15 @@
 package com.esri.UC;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,24 +17,39 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
 
 import com.esri.android.geotrigger.GeotriggerApiClient;
 import com.esri.android.geotrigger.GeotriggerApiListener;
 import com.esri.android.geotrigger.GeotriggerBroadcastReceiver;
 import com.esri.android.geotrigger.GeotriggerService;
 import com.esri.android.geotrigger.TriggerBuilder;
+import com.esri.android.map.Layer;
 import com.esri.android.map.LocationDisplayManager;
 import com.esri.android.map.LocationService;
 import com.esri.android.map.MapView;
+import com.esri.android.map.ags.ArcGISFeatureLayer;
 import com.esri.android.map.ags.ArcGISTiledMapServiceLayer;
+import com.esri.android.map.event.OnLongPressListener;
+import com.esri.android.map.event.OnSingleTapListener;
+import com.esri.android.map.event.OnStatusChangedListener;
+import com.esri.android.map.popup.Popup;
+import com.esri.android.map.popup.PopupContainer;
+import com.esri.android.toolkit.map.MapViewHelper;
+import com.esri.android.toolkit.map.PopupCreateListener;
+import com.esri.core.geometry.Envelope;
+import com.esri.core.map.Feature;
 import com.esri.core.symbol.SimpleMarkerSymbol;
 
 import org.apache.http.StatusLine;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class MainActivity extends ActionBarActivity implements
@@ -45,7 +66,7 @@ public class MainActivity extends ActionBarActivity implements
     // A list of initial tags to apply to the device.
     // Triggers created on the server for this application, with at least one of these same tags,
     // will be active for the device.
-    private static final String[] TAGS = new String[] {"some_tag", "another_tag"};
+    private static final String[] TAGS = new String[]{"init_tag"};
 
     // The GeotriggerBroadcastReceiver receives intents from the
     // GeotriggerService, calling any listeners implemented in your class.
@@ -55,21 +76,127 @@ public class MainActivity extends ActionBarActivity implements
     private boolean mShouldSendNotification;
     MapView mMapView;
 
+//    private MapViewHelper mMapViewHelper;
+//    private PopupFragment mPopupFragment;
+
+    //for the popup
+    private PopupContainer popupContainer;
+    private PopupDialog popupDialog;
+    private ProgressDialog progressDialog;
+    private AtomicInteger count;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Bundle extras  = getIntent().getExtras();
+
+
         mGeotriggerBroadcastReceiver = new GeotriggerBroadcastReceiver();
         mShouldCreateTrigger = false;
         mShouldSendNotification = true;
         mMapView = (MapView) findViewById(R.id.map);
-        mMapView.addLayer(new ArcGISTiledMapServiceLayer(
-                "http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer"));
-        mMapView.centerAndZoom(-13042050, 3856352, 10);
+//        mMapView.addLayer(new ArcGISTiledMapServiceLayer(
+//                "http://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer"));
+//
+//        mMapView.addLayer(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/0", ArcGISFeatureLayer.MODE.ONDEMAND));
+//        mMapView.addLayer(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/1", ArcGISFeatureLayer.MODE.ONDEMAND));
+//        mMapView.addLayer(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/2", ArcGISFeatureLayer.MODE.ONDEMAND));
+//        mMapView.addLayer(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/3", ArcGISFeatureLayer.MODE.ONDEMAND));
 
+        mMapView = new MapView(this, "http://www.arcgis.com/home/item.html?id=afc701cded49434b91afbd975d59569c", "", "");
+        setContentView(mMapView);
 
+        // Tap on the map and show popups for selected features.
+        mMapView.setOnSingleTapListener(new OnSingleTapListener() {
+            private static final long serialVersionUID = 1L;
+
+            public void onSingleTap(float x, float y) {
+                if (mMapView.isLoaded()) {
+                    // Instantiate a PopupContainer
+                    popupContainer = new PopupContainer(mMapView);
+                    int id = popupContainer.hashCode();
+                    popupDialog = null;
+                    // Display spinner.
+                    if (progressDialog == null || !progressDialog.isShowing())
+                        progressDialog = ProgressDialog.show(mMapView.getContext(), "", "Querying...");
+
+                    // Loop through each layer in the webmap
+                    int tolerance = 20;
+                    Envelope env = new Envelope(mMapView.toMapPoint(x, y), 20 * mMapView.getResolution(), 20 * mMapView.getResolution());
+                    Layer[] layers = mMapView.getLayers();
+                    count = new AtomicInteger();
+                    for (Layer layer : layers) {
+                        // If the layer has not been initialized or is invisible, do nothing.
+                        if (!layer.isInitialized() || !layer.isVisible())
+                            continue;
+
+                        if (layer instanceof ArcGISFeatureLayer) {
+                            Log.d("querying","a featurelayer");
+                            // Query feature layer and display popups
+                            ArcGISFeatureLayer featureLayer = (ArcGISFeatureLayer) layer;
+                            if (featureLayer.getPopupInfo() != null) {
+                                // Query feature layer which is associated with a popup definition.
+                                count.incrementAndGet();
+                                new RunQueryFeatureLayerTask(x, y, tolerance, id).execute(featureLayer);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+//        mMapView.setOnStatusChangedListener(new OnStatusChangedListener() {
+//
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            public void onStatusChanged(Object source, STATUS status) {
+//                if ((status == OnStatusChangedListener.STATUS.INITIALIZED) && (source == mMapView)) {
+//                    // Create a MapViewHelper object once the map view has been initialized.
+//                    mMapViewHelper = new MapViewHelper(mMapView);
+//                    Log.d("OnstatusChange", "statuschagned");
+//                }
+//            }
+//        });
+//
+//        mMapView.setOnSingleTapListener(new OnSingleTapListener() {
+//
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            public void onSingleTap(float x, float y) {
+//                if (!mMapView.isLoaded())
+//                    return;
+//
+//                mPopupFragment = new PopupFragment(mMapView);
+//                LayerQueryTask queryTask = new LayerQueryTask(mMapView, mPopupFragment);
+//                queryTask.queryLayers(x, y, 20, true);
+//            }
+//        });
+//
+//
+//
+//        // Query all the layers and display pop-up with default UI using MapViewHelper
+//        // using a helper class of Application Toolkit.
+//        mMapView.setOnLongPressListener(new OnLongPressListener() {
+//
+//            private static final long serialVersionUID = 1L;
+//
+//            @Override
+//            public boolean onLongPress(float x, float y) {
+//
+//                mPopupFragment = null;
+//                // The helper class from Application Toolkit will loop through and query each layer in the mapview.
+//                // A pop-up will be created for each feature in the query result and will be added to a PopupContainer.
+//                // The user-define PopupCreateListerner will be called when a pop-up is created.
+//                // User can put their logic in the PopupCreateListerner to display the pop-ups.
+//                mMapViewHelper.createPopup(x, y, new SimplePopupCreateListener());
+//                return true;
+//            }
+//        });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -80,7 +207,7 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_locate:
                 try {
                     locateMe();
@@ -101,7 +228,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onStart();
 
         GeotriggerHelper.startGeotriggerService(this, AGO_CLIENT_ID, GCM_SENDER_ID, TAGS,
-                GeotriggerService.TRACKING_PROFILE_ADAPTIVE);
+                GeotriggerService.TRACKING_PROFILE_FINE);
     }
 
     @Override
@@ -122,6 +249,27 @@ public class MainActivity extends ActionBarActivity implements
         // in the manifest.
         registerReceiver(mGeotriggerBroadcastReceiver,
                 GeotriggerBroadcastReceiver.getDefaultIntentFilter());
+
+
+//
+//        Log.e("trymessage", "try to get push notification");
+//        Bundle bundle = getIntent().getExtras();
+//        if (bundle != null) {
+//            Log.e("trymessage", "got a push notification");
+//            String notificationData = bundle.getString("com.parse.Data");
+//            if (notificationData != null) {
+//                Log.d("detectPushNotificationMessage", "notificationData =" + notificationData);
+//                try {
+//                    locateMe();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                //handlePushNotificationMessage(notificationData);
+//            }
+//
+//        }else{
+//            Log.e("trymessage", "did not get a push notification");
+//        }
     }
 
     @Override
@@ -132,6 +280,50 @@ public class MainActivity extends ActionBarActivity implements
 
 
         Log.d(TAG, "GeotriggerService ready!");
+
+        //check if it is the first time the app is launched, if it is do some tagging
+        SharedPreferences settings = getSharedPreferences("MyPrefsFile", 0);
+        if (settings.getBoolean("myfirsttime", true)) {
+            addTag("Architecture");
+            addTag("Beach");
+            addTag("Cafe");
+            addTag("esrievent");
+            addTag("Historic Site");
+            addTag("Infrastructure");
+            addTag("Market");
+            addTag("Museum");
+            addTag("Neighborhood");
+            addTag("Outdoors");
+            addTag("Park");
+            addTag("Restaurant");
+            addTag("Sculpture");
+            addTag("Shopping & Dining");
+            addTag("Store");
+
+            settings.edit().putBoolean("myfirsttime", false).commit();
+        }
+    }
+
+
+    public void addTag(String tagname) {
+        JSONObject params = new JSONObject();
+        try {
+            params.put("addTags", tagname);
+        } catch (JSONException e) {
+            Log.e("Addtag", "Error creating device update parameters.", e);
+        }
+
+        GeotriggerApiClient.runRequest(this, "device/update", params, new GeotriggerApiListener() {
+            @Override
+            public void onSuccess(JSONObject data) {
+                Log.d("Addtag", "Device updated: " + data.toString());
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                Log.d("Addtag", "Failed to update device.", error);
+            }
+        });
     }
 
     @Override
@@ -141,12 +333,12 @@ public class MainActivity extends ActionBarActivity implements
         // determine if this location update was a result of calling
         // GeotriggerService.requestOnDemandUpdate()
 
-        Toast.makeText(this, "Location Update Received!"+ GeotriggerService.getDeviceId(this),
+        Toast.makeText(this, "Location Update Received!" + GeotriggerService.getDeviceId(this),
                 Toast.LENGTH_SHORT).show();
         Log.d(TAG, String.format("Location update received: (%f, %f)",
-                loc.getLatitude(), loc.getLongitude())+ GeotriggerService.getDeviceId(this));
+                loc.getLatitude(), loc.getLongitude()) + GeotriggerService.getDeviceId(this));
 
-        if(mShouldSendNotification){
+        if (mShouldSendNotification) {
             mShouldSendNotification = false;
 
 
@@ -200,29 +392,27 @@ public class MainActivity extends ActionBarActivity implements
 //            });
 
 
-
-
-            //Create params for test push notification
-            JSONObject params = new JSONObject();
-            try {
-                params.put("text", "Push notifications are working!");
-                params.put("url", "http://developers.arcgis.com");
-            } catch (JSONException e) {
-                Log.e(TAG, "Error creating device/notify params", e);
-            }
-
-            //Make Test Push Notification
-            GeotriggerApiClient.runRequest(this, "device/notify", params, new GeotriggerApiListener() {
-                @Override
-                public void onSuccess(JSONObject json) {
-                    Log.i(TAG, "device/notify success: " + json);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    Log.e(TAG, "device/notify failure", error);
-                }
-            });
+//            //Create params for test push notification
+//            JSONObject params = new JSONObject();
+//            try {
+//                params.put("text", "Push notifications are working!");
+//                //params.put("url", "http://developers.arcgis.com");
+//            } catch (JSONException e) {
+//                Log.e(TAG, "Error creating device/notify params", e);
+//            }
+//
+//            //Make Test Push Notification
+//            GeotriggerApiClient.runRequest(this, "device/notify", params, new GeotriggerApiListener() {
+//                @Override
+//                public void onSuccess(JSONObject json) {
+//                    Log.i(TAG, "device/notify success: " + json);
+//                }
+//
+//                @Override
+//                public void onFailure(Throwable error) {
+//                    Log.e(TAG, "device/notify failure", error);
+//                }
+//            });
         }
 
         // Create the trigger if we haven't done so already.
@@ -270,9 +460,158 @@ public class MainActivity extends ActionBarActivity implements
 
     }
 
-    public void switchToSettings(){
+    public void switchToSettings() {
         Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
         //myIntent.putExtra("key", value); //Optional parameters
         MainActivity.this.startActivity(myIntent);
     }
+
+
+
+    private void createPopupViews(Feature[] features, final int id) {
+        if ( id != popupContainer.hashCode() ) {
+            if (progressDialog != null && progressDialog.isShowing() && count.intValue() == 0)
+                progressDialog.dismiss();
+
+            return;
+        }
+
+        if (popupDialog == null) {
+            if (progressDialog != null && progressDialog.isShowing())
+                progressDialog.dismiss();
+
+            // Create a dialog for the popups and display it.
+            popupDialog = new PopupDialog(mMapView.getContext(), popupContainer);
+            popupDialog.show();
+        }
+    }
+
+    // Query feature layer by hit test
+    private class RunQueryFeatureLayerTask extends AsyncTask<ArcGISFeatureLayer, Void, Feature[]> {
+
+        private int tolerance;
+        private float x;
+        private float y;
+        private ArcGISFeatureLayer featureLayer;
+        private int id;
+
+        public RunQueryFeatureLayerTask(float x, float y, int tolerance, int id) {
+            super();
+            this.x = x;
+            this.y = y;
+            this.tolerance = tolerance;
+            this.id = id;
+        }
+
+        @Override
+        protected Feature[] doInBackground(ArcGISFeatureLayer... params) {
+            for (ArcGISFeatureLayer featureLayer : params) {
+                this.featureLayer = featureLayer;
+                // Retrieve feature ids near the point.
+                int[] ids = featureLayer.getGraphicIDs(x, y, tolerance);
+                if (ids != null && ids.length > 0) {
+                    ArrayList<Feature> features = new ArrayList<Feature>();
+                    for (int id : ids) {
+                        // Obtain feature based on the id.
+                        Feature f = featureLayer.getGraphic(id);
+                        if (f == null)
+                            continue;
+                        features.add(f);
+                    }
+                    // Return an array of features near the point.
+                    return features.toArray(new Feature[0]);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Feature[] features) {
+            Log.d("postexecute","runpostexecute");
+            count.decrementAndGet();
+            if (features == null || features.length == 0) {
+                Log.d("postexecute","no features");
+                if (progressDialog != null && progressDialog.isShowing() && count.intValue() == 0)
+                    progressDialog.dismiss();
+
+                return;
+            }
+            // Check if the requested PopupContainer id is the same as the current PopupContainer.
+            // Otherwise, abandon the obsoleted query result.
+            if (id != popupContainer.hashCode()) {
+                Log.d("postexecute","something wrong with popup");
+                if (progressDialog != null && progressDialog.isShowing() && count.intValue() == 0)
+                    progressDialog.dismiss();
+
+                return;
+            }
+
+            for (Feature fr : features) {
+                Log.d("postexecute","createfeatures"+fr.getId());
+
+                Popup popup = featureLayer.createPopup(mMapView, 0, fr);
+                popupContainer.addPopup(popup);
+            }
+            createPopupViews(features, id);
+        }
+
+    }
+
+
+
+    // A customize full screen dialog.
+    private class PopupDialog extends Dialog {
+        private PopupContainer popupContainer;
+
+        public PopupDialog(Context context, PopupContainer popupContainer) {
+            super(context, android.R.style.Theme);
+            this.popupContainer = popupContainer;
+        }
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            LinearLayout layout = new LinearLayout(getContext());
+            layout.addView(popupContainer.getPopupContainerView(), android.widget.LinearLayout.LayoutParams.FILL_PARENT, android.widget.LinearLayout.LayoutParams.FILL_PARENT);
+            setContentView(layout, params);
+        }
+
+    }
 }
+
+
+
+//    // Display pop-up fragment on a UI thread.
+//    private class SimplePopupCreateListener implements PopupCreateListener {
+//
+//        @Override
+//        public void onResult(final PopupContainer container) {
+//            if ((container != null) && (container.getPopupCount() > 0)) {
+//                ((Activity) MainActivity.this).runOnUiThread(new Runnable() {
+//
+//                    @Override
+//                    public void run() {
+//                        if (mPopupFragment == null ) {
+//                            mPopupFragment = new PopupFragment(mMapView, container);
+//                            mPopupFragment.show();
+//                        }
+//                    }
+//                });
+//            }
+//        }
+//
+//    }
+
+
+//    @Override
+//    public void onPushMessage(Bundle bundle) {
+//        try {
+//            Log.d("MessageListener", "received message");
+//            Log.d("MessageListener", bundle.get("text").toString());
+//            locateMe();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }

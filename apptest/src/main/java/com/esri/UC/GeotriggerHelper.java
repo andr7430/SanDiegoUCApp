@@ -139,6 +139,7 @@ public final class GeotriggerHelper {
                 // enabled, we have enough information to start the GeotriggerService and be reasonably sure
                 // that it will perform well.
                 GeotriggerService.init(activity, clientId, senderId, tags, profile);
+                GeotriggerService.setPushNotificationHandlingEnabled(activity,false);
             } else {
                 Log.d(TAG, "Delaying the start of Geotriggers, as we are awaiting the availability of " +
                         "at least one provider.");

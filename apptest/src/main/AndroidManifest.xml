@@ -60,6 +60,18 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
+
+
+        <receiver
+            android:name="com.esri.UC.GCMHandler"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.esri.android.geotrigger.action.PUSH_MESSAGE_RECEIVED" />
+                <action android:name="com.esri.android.geotrigger.action.LOCATION_UPDATE_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
