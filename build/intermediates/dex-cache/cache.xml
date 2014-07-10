@@ -2,6 +2,12 @@
 <pre-dex-items>
 
     <item
+        dex="/Users/Andrew/EsriProj/UCTest/apptest/build/intermediates/pre-dexed/arm/debug/jackson-mapper-lgpl-1.9.5-c2349150749959e75ebcc3451a5aee8827d6863d.jar"
+        jar="/Users/Andrew/EsriProj/UCTest/apptest/libs/jackson-mapper-lgpl-1.9.5.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="ffbb48e87fa5e9107c17aaa0616f724d785a4d71"/>
+    <item
         dex="/Users/Andrew/EsriProj/UCTest/apptest/build/intermediates/pre-dexed/arm/debug/geotrigger-sdk-1.0.1-c387c7f960fff781f5aed71809a893177ad65e66.jar"
         jar="/Users/Andrew/EsriProj/UCTest/apptest/libs/geotrigger-sdk-1.0.1.jar"
         jumboMode="false"
@@ -20,23 +26,17 @@
         revision="19.1.0"
         sha1="1a2f0e28cc9497fb4927ea2422605fb8023969b6"/>
     <item
-        dex="/Users/Andrew/EsriProj/UCTest/apptest/build/intermediates/pre-dexed/arm/debug/support-v4-19.1.0-fe930dc68beb1e566675ce71b270d4091c6c249b.jar"
-        jar="/Applications/Android Studio.app/sdk/extras/android/m2repository/com/android/support/support-v4/19.1.0/support-v4-19.1.0.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67"/>
-    <item
-        dex="/Users/Andrew/EsriProj/UCTest/apptest/build/intermediates/pre-dexed/arm/debug/jackson-mapper-lgpl-1.9.5-c2349150749959e75ebcc3451a5aee8827d6863d.jar"
-        jar="/Users/Andrew/EsriProj/UCTest/apptest/libs/jackson-mapper-lgpl-1.9.5.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="ffbb48e87fa5e9107c17aaa0616f724d785a4d71"/>
-    <item
         dex="/Users/Andrew/EsriProj/UCTest/apptest/build/intermediates/pre-dexed/arm/debug/arcgis-android-app-toolkit-d7a7f92bb8c4ffdb4e836eb2167c70d8fa5556a9.jar"
         jar="/Users/Andrew/EsriProj/UCTest/apptest/libs/arcgis-android-app-toolkit.jar"
         jumboMode="false"
         revision="19.1.0"
         sha1="ba8d428ad04e30febd942365c6119bb62d7199bb"/>
+    <item
+        dex="/Users/Andrew/EsriProj/UCTest/apptest/build/intermediates/pre-dexed/arm/debug/gson-2.2.4-9ba8b4d64da9a660d9669812f701f95dadc7b728.jar"
+        jar="/Users/Andrew/EsriProj/UCTest/apptest/libs/gson-2.2.4.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="973e832af433b44c3ed11c426f2f390b29f3f3f8"/>
     <item
         dex="/Users/Andrew/EsriProj/UCTest/apptest/build/intermediates/pre-dexed/arm/debug/jackson-core-lgpl-1.9.5-d3a1e63870e66afbc79a7d183111de7951c2a1eb.jar"
         jar="/Users/Andrew/EsriProj/UCTest/apptest/libs/jackson-core-lgpl-1.9.5.jar"
@@ -55,5 +55,11 @@
         jumboMode="false"
         revision="19.1.0"
         sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28"/>
+    <item
+        dex="/Users/Andrew/EsriProj/UCTest/apptest/build/intermediates/pre-dexed/arm/debug/support-v4-19.1.0-fe930dc68beb1e566675ce71b270d4091c6c249b.jar"
+        jar="/Applications/Android Studio.app/sdk/extras/android/m2repository/com/android/support/support-v4/19.1.0/support-v4-19.1.0.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67"/>
 
 </pre-dex-items>

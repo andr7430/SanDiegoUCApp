@@ -39,17 +39,24 @@ import com.esri.android.map.popup.PopupContainer;
 import com.esri.android.toolkit.map.MapViewHelper;
 import com.esri.android.toolkit.map.PopupCreateListener;
 import com.esri.core.geometry.Envelope;
+import com.esri.core.map.CallbackListener;
 import com.esri.core.map.Feature;
+import com.esri.core.map.FeatureSet;
 import com.esri.core.symbol.SimpleMarkerSymbol;
 
 import org.apache.http.StatusLine;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.esri.core.tasks.ags.query.Query;
+import com.google.gson.Gson;
 
 
 public class MainActivity extends ActionBarActivity implements
@@ -81,6 +88,7 @@ public class MainActivity extends ActionBarActivity implements
     private PopupDialog popupDialog;
     private ProgressDialog progressDialog;
     private AtomicInteger count;
+    int initcount=0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,8 +110,26 @@ public class MainActivity extends ActionBarActivity implements
 //        mMapView.addLayer(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/2", ArcGISFeatureLayer.MODE.ONDEMAND));
 //        mMapView.addLayer(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/3", ArcGISFeatureLayer.MODE.ONDEMAND));
 
-        mMapView = new MapView(this, "http://www.arcgis.com/home/item.html?id=afc701cded49434b91afbd975d59569c", "", "");
-        setContentView(mMapView);
+        //mMapView = new MapView(this, "http://www.arcgis.com/home/item.html?id=afc701cded49434b91afbd975d59569c",);
+        //setContentView(mMapView);
+
+
+
+
+        mMapView.setOnStatusChangedListener(new OnStatusChangedListener() {
+            @Override
+            public void onStatusChanged(Object o, STATUS status) {
+
+                initcount++;
+                Log.d("statuschanged", o.toString()+" "+initcount);
+//                if ((status == STATUS.INITIALIZED) && (o == mMapView) ) {
+//                    onNewIntent(getIntent());
+//                }
+                if(initcount==6){
+                    onNewIntent(getIntent());
+                }
+            }
+        });
 
         // Tap on the map and show popups for selected features.
         mMapView.setOnSingleTapListener(new OnSingleTapListener() {
@@ -143,8 +169,126 @@ public class MainActivity extends ActionBarActivity implements
                 }
             }
         });
+
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        //super.onNewIntent(intent);
+
+            Bundle extras = intent.getExtras();
+        if(extras!=null) {
+            if (extras.containsKey("NewNotification")) {
+                Log.d("GOTNOTIFICATION", extras.get("data").toString());
+
+                try {
+                    //extras.get("data").toString().to
+                    //JSONObject alljson = ((JSONObject) extras.get("data").toString());
+
+                    //Gson gson = new Gson();
+                    String stringjson = extras.get("data").toString();
+                    Log.e("stringjson",stringjson);
+                    JSONObject alljson = new JSONObject(stringjson);
+
+
+
+
+                    String title = alljson.getString("TITLE");
+                    final int objectid = alljson.getInt("OBJECTID");
+
+                    Log.e("jsons", title+" "+objectid);
+
+
+                    ArrayList<Layer> layers = new ArrayList<Layer>();
+                    layers.add(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/0", ArcGISFeatureLayer.MODE.ONDEMAND));
+                    layers.add(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/1", ArcGISFeatureLayer.MODE.ONDEMAND));
+                    layers.add(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/2", ArcGISFeatureLayer.MODE.ONDEMAND));
+                    layers.add(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/3", ArcGISFeatureLayer.MODE.ONDEMAND));
+                    Layer[] layers1 = mMapView.getLayers();
+
+                    count = new AtomicInteger();
+                    // If the layer has not been initialized or is invisible, do nothing.
+//                        if (!layer.isInitialized() || !layer.isVisible())
+//                            continue;
+                    for (final Layer layer : layers1)
+                        if (layer instanceof ArcGISFeatureLayer) {
+                            if (!layer.isInitialized() || !layer.isVisible())
+                                continue;
+
+                            Query query = new Query();
+                            String querystring = "OBJECTID="+objectid+" AND TITLE='"+title+"'";
+                            Log.d("querystring", querystring);
+                            query.setWhere(querystring);
+
+                            ((ArcGISFeatureLayer) layer).queryFeatures(query, new CallbackListener<FeatureSet>() {
+                                @Override
+                                public void onCallback(FeatureSet featureSet) {
+                                    Log.e("length", "length: "+featureSet.getGraphics().length);
+                                    if(featureSet!=null && featureSet.getGraphics().length>0) {
+                                        popupContainer = new PopupContainer(mMapView);
+                                        int id = popupContainer.hashCode();
+                                        popupDialog = null;
+
+                                        Feature fr = featureSet.getGraphics()[0];
+                                        ArrayList<Feature> features = new ArrayList<Feature>();
+                                        features.add(fr);
+
+                                        Feature[] featarray = features.toArray(new Feature[0]);
+
+                                        for (Feature fr2 : featarray) {
+                                            Popup popup = layer.createPopup(mMapView, 0, fr2);
+                                            popupContainer.addPopup(popup);
+                                        }
+
+                                        createPopupViews(featarray, id);
+                                    }
+
+                                }
+
+                                @Override
+                                public void onError(Throwable throwable) {
+                                    Log.e("ERROR", throwable.getMessage());
+
+                                }
+                            });
+//                            Feature feat1 = ((ArcGISFeatureLayer) layer).getGraphic(objectid);
+//                            if (feat1 != null) {
+//                                Object obj = feat1.getAttributeValue("TITLE");
+//                                Log.d("title", feat1.getAttributeValue("TITLE").toString());
+//                                if (((ArcGISFeatureLayer) layer).getGraphic(objectid).getAttributeValue("TITLE").toString().equalsIgnoreCase(title)) {
+//                                    Log.d("query", "a match");
+//                                    // Instantiate a PopupContainer
+//                                    popupContainer = new PopupContainer(mMapView);
+//                                    int id = popupContainer.hashCode();
+//                                    popupDialog = null;
+//
+//                                    Feature fr = ((ArcGISFeatureLayer) layer).getGraphic(objectid);
+//                                    ArrayList<Feature> features = new ArrayList<Feature>();
+//                                    features.add(fr);
+//
+//
+//                                    Popup popup = ((ArcGISFeatureLayer) layer).createPopup(mMapView, 0, fr);
+//                                    popupContainer.addPopup(popup);
+//                                    createPopupViews(features.toArray(new Feature[0]), id);
+//
+//                                } else {
+//                                    Log.d("query", "no match");
+//                                }
+//                            }
+                        }
+
+                } catch (JSONException e) {
+                    Log.e("query", e.getMessage());
+                    e.printStackTrace();
+                }
+
+
+
+            } else {
+                Log.d("GOTNOTIFICATION", "NO");
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -280,11 +424,11 @@ public class MainActivity extends ActionBarActivity implements
         // Android's native location services. The isOnDemand parameter lets you
         // determine if this location update was a result of calling
         // GeotriggerService.requestOnDemandUpdate()
-
-        Toast.makeText(this, "Location Update Received!" + GeotriggerService.getDeviceId(this),
-                Toast.LENGTH_SHORT).show();
-        Log.d(TAG, String.format("Location update received: (%f, %f)",
-                loc.getLatitude(), loc.getLongitude()) + GeotriggerService.getDeviceId(this));
+//
+//        Toast.makeText(this, "Location Update Received!" + GeotriggerService.getDeviceId(this),
+//                Toast.LENGTH_SHORT).show();
+//        Log.d(TAG, String.format("Location update received: (%f, %f)",
+//                loc.getLatitude(), loc.getLongitude()) + GeotriggerService.getDeviceId(this));
 
         if (mShouldSendNotification) {
             mShouldSendNotification = false;
@@ -431,6 +575,21 @@ public class MainActivity extends ActionBarActivity implements
             // Create a dialog for the popups and display it.
             popupDialog = new PopupDialog(mMapView.getContext(), popupContainer);
             popupDialog.show();
+        }
+    }
+
+    private class IdQuery extends AsyncTask<ArcGISFeatureLayer, Void, Feature[]> {
+        private int objectid;
+        private String title;
+
+        public IdQuery(int objectid, String title){
+            super();
+            this.objectid = objectid;
+            this.title = title;
+        }
+        @Override
+        protected Feature[] doInBackground(ArcGISFeatureLayer... params) {
+            return new Feature[0];
         }
     }
 

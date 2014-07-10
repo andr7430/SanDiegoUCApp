@@ -14,7 +14,9 @@
         android:id="@+id/map"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        initExtent = "-19332033.11, -3516.27, -1720941.80, 11737211.28">
-    </com.esri.android.map.MapView>
+        url="http://www.arcgis.com/home/item.html?id=afc701cded49434b91afbd975d59569c">
+        </com.esri.android.map.MapView>
+        <!--mapoptions.MapType="topo">-->
+
 
 </RelativeLayout>
