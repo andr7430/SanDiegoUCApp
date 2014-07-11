@@ -116,20 +116,20 @@ public class MainActivity extends ActionBarActivity implements
 
 
 
-        mMapView.setOnStatusChangedListener(new OnStatusChangedListener() {
-            @Override
-            public void onStatusChanged(Object o, STATUS status) {
-
-                initcount++;
-                Log.d("statuschanged", o.toString()+" "+initcount);
-//                if ((status == STATUS.INITIALIZED) && (o == mMapView) ) {
+//        mMapView.setOnStatusChangedListener(new OnStatusChangedListener() {
+//            @Override
+//            public void onStatusChanged(Object o, STATUS status) {
+//
+//                initcount++;
+//                Log.d("statuschanged", o.toString()+" "+initcount);
+////                if ((status == STATUS.INITIALIZED) && (o == mMapView) ) {
+////                    onNewIntent(getIntent());
+////                }
+//                if(initcount==6){
 //                    onNewIntent(getIntent());
 //                }
-                if(initcount==6){
-                    onNewIntent(getIntent());
-                }
-            }
-        });
+//            }
+//        });
 
         // Tap on the map and show popups for selected features.
         mMapView.setOnSingleTapListener(new OnSingleTapListener() {
@@ -172,123 +172,286 @@ public class MainActivity extends ActionBarActivity implements
 
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        //super.onNewIntent(intent);
-
-            Bundle extras = intent.getExtras();
-        if(extras!=null) {
-            if (extras.containsKey("NewNotification")) {
-                Log.d("GOTNOTIFICATION", extras.get("data").toString());
-
-                try {
-                    //extras.get("data").toString().to
-                    //JSONObject alljson = ((JSONObject) extras.get("data").toString());
-
-                    //Gson gson = new Gson();
-                    String stringjson = extras.get("data").toString();
-                    Log.e("stringjson",stringjson);
-                    JSONObject alljson = new JSONObject(stringjson);
 
 
-
-
-                    String title = alljson.getString("TITLE");
-                    final int objectid = alljson.getInt("OBJECTID");
-
-                    Log.e("jsons", title+" "+objectid);
-
-
-                    ArrayList<Layer> layers = new ArrayList<Layer>();
-                    layers.add(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/0", ArcGISFeatureLayer.MODE.ONDEMAND));
-                    layers.add(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/1", ArcGISFeatureLayer.MODE.ONDEMAND));
-                    layers.add(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/2", ArcGISFeatureLayer.MODE.ONDEMAND));
-                    layers.add(new ArcGISFeatureLayer("http://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/UC_1/FeatureServer/3", ArcGISFeatureLayer.MODE.ONDEMAND));
-                    Layer[] layers1 = mMapView.getLayers();
-
-                    count = new AtomicInteger();
-                    // If the layer has not been initialized or is invisible, do nothing.
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        //super.onNewIntent(intent);
+//
+//        Bundle extras = intent.getExtras();
+//        if(extras!=null && mMapView.isLoaded()) {
+//            if (extras.containsKey("NewNotification")) {
+//                Log.d("GOTNOTIFICATION", extras.get("data").toString());
+//
+//                try {
+//                    String stringjson = extras.get("data").toString();
+//                    Log.e("stringjson",stringjson);
+//                    JSONObject alljson = new JSONObject(stringjson);
+//
+//
+//
+//                    popupContainer = new PopupContainer(mMapView);
+//                    int id = popupContainer.hashCode();
+//                    popupDialog = null;
+//
+//
+//                    String title = alljson.getString("TITLE");
+//                    final int objectid = alljson.getInt("OBJECTID");
+//
+//                    Log.e("jsons", title+" "+objectid);
+//
+//                    Layer[] layers1 = mMapView.getLayers();
+//
+//                    count = new AtomicInteger();
+//
+//                    for (final Layer layer : layers1) {
 //                        if (!layer.isInitialized() || !layer.isVisible())
 //                            continue;
-                    for (final Layer layer : layers1)
-                        if (layer instanceof ArcGISFeatureLayer) {
-                            if (!layer.isInitialized() || !layer.isVisible())
-                                continue;
-
-                            Query query = new Query();
-                            String querystring = "OBJECTID="+objectid+" AND TITLE='"+title+"'";
-                            Log.d("querystring", querystring);
-                            query.setWhere(querystring);
-
-                            ((ArcGISFeatureLayer) layer).queryFeatures(query, new CallbackListener<FeatureSet>() {
-                                @Override
-                                public void onCallback(FeatureSet featureSet) {
-                                    Log.e("length", "length: "+featureSet.getGraphics().length);
-                                    if(featureSet!=null && featureSet.getGraphics().length>0) {
-                                        popupContainer = new PopupContainer(mMapView);
-                                        int id = popupContainer.hashCode();
-                                        popupDialog = null;
-
-                                        Feature fr = featureSet.getGraphics()[0];
-                                        ArrayList<Feature> features = new ArrayList<Feature>();
-                                        features.add(fr);
-
-                                        Feature[] featarray = features.toArray(new Feature[0]);
-
-                                        for (Feature fr2 : featarray) {
-                                            Popup popup = layer.createPopup(mMapView, 0, fr2);
-                                            popupContainer.addPopup(popup);
-                                        }
-
-                                        createPopupViews(featarray, id);
-                                    }
-
-                                }
-
-                                @Override
-                                public void onError(Throwable throwable) {
-                                    Log.e("ERROR", throwable.getMessage());
-
-                                }
-                            });
-//                            Feature feat1 = ((ArcGISFeatureLayer) layer).getGraphic(objectid);
-//                            if (feat1 != null) {
-//                                Object obj = feat1.getAttributeValue("TITLE");
-//                                Log.d("title", feat1.getAttributeValue("TITLE").toString());
-//                                if (((ArcGISFeatureLayer) layer).getGraphic(objectid).getAttributeValue("TITLE").toString().equalsIgnoreCase(title)) {
-//                                    Log.d("query", "a match");
-//                                    // Instantiate a PopupContainer
-//                                    popupContainer = new PopupContainer(mMapView);
-//                                    int id = popupContainer.hashCode();
-//                                    popupDialog = null;
-//
-//                                    Feature fr = ((ArcGISFeatureLayer) layer).getGraphic(objectid);
-//                                    ArrayList<Feature> features = new ArrayList<Feature>();
-//                                    features.add(fr);
 //
 //
-//                                    Popup popup = ((ArcGISFeatureLayer) layer).createPopup(mMapView, 0, fr);
-//                                    popupContainer.addPopup(popup);
-//                                    createPopupViews(features.toArray(new Feature[0]), id);
+//                        if (layer instanceof ArcGISFeatureLayer) {
+//                            ArcGISFeatureLayer featureLayer = (ArcGISFeatureLayer) layer;
+//                            count.incrementAndGet();
+//                            new IdQuery(objectid, title, id).execute(featureLayer);
 //
-//                                } else {
-//                                    Log.d("query", "no match");
-//                                }
+//                        }
+//                    }
+//
+//                } catch (JSONException e) {
+//                    Log.e("query", e.getMessage());
+//                    e.printStackTrace();
+//                }
+//
+//
+//
+//            } else {
+//                Log.d("GOTNOTIFICATION", "NO");
+//            }
+//        }
+//    }
+
+//    private class IdQuery extends AsyncTask<ArcGISFeatureLayer, Void, Feature[]> {
+//        private int objectid;
+//        private String title;
+//        private ArcGISFeatureLayer featureLayer;
+//        private int id;
+//
+//        public IdQuery(int objectid, String title, int id){
+//            super();
+//            this.objectid = objectid;
+//            this.title = title;
+//            this.id=id;
+//        }
+//
+//        @Override
+//        protected Feature[] doInBackground(ArcGISFeatureLayer... params) {
+//            Log.d("here", "hereatleast");
+//            for (ArcGISFeatureLayer featureLayertmp : params) {
+//                this.featureLayer = featureLayertmp;
+//                Query query = new Query();
+//                String querystring = "OBJECTID="+this.objectid+" AND TITLE='"+this.title+"'";
+//                Log.d("querystring", querystring);
+//                query.setWhere(querystring);
+//
+//                featureLayer.queryFeatures(query, new CallbackListener<FeatureSet>() {
+//                    @Override
+//                    public void onCallback(FeatureSet featureSet) {
+//                        Log.e("length", "length: "+featureSet.getGraphics().length);
+//                        if(featureSet!=null && featureSet.getGraphics().length>0) {
+//                            ArrayList<Feature> featureslist = new ArrayList<Feature>();
+//
+//                            Feature fr = featureSet.getGraphics()[0];
+//                            featureslist.add(fr);
+//                            Feature[] features = featureslist.toArray(new Feature[0]);
+//
+//                            //return features.toArray(new Feature[0]);
+//
+//                            //post execute segment
+//                            Log.d("postexecute","runpostexecute");
+//                            count.decrementAndGet();
+//                            if (features == null || features.length == 0) {
+//                                Log.d("postexecute","no features");
+//                                if (progressDialog != null && progressDialog.isShowing() && count.intValue() == 0)
+//                                    progressDialog.dismiss();
+//
+//                                return;
 //                            }
-                        }
+//                            // Check if the requested PopupContainer id is the same as the current PopupContainer.
+//                            // Otherwise, abandon the obsoleted query result.
+//                            if (id != popupContainer.hashCode()) {
+//                                Log.d("postexecute","something wrong with popup");
+//                                if (progressDialog != null && progressDialog.isShowing() && count.intValue() == 0)
+//                                    progressDialog.dismiss();
+//
+//                                return;
+//                            }
+//
+//                            for (Feature fr2 : features) {
+//                                Log.d("postexecute","createfeatures"+fr2.getId());
+//
+//                                Popup popup = featureLayer.createPopup(mMapView, 0, fr2);
+//                                popupContainer.addPopup(popup);
+//                            }
+//                            createPopupViews(features, id);
+//                            //end post execute segment
+//                        }
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable throwable) {
+//                        Log.e("ERROR", throwable.getMessage());
+//
+//                    }
+//                });
+//            }
+//            return null;
+//        }
+//
+//
+////        @Override
+////        protected void onPostExecute(Feature[] features) {
+////            Log.d("postexecute","runpostexecute");
+////            count.decrementAndGet();
+////            if (features == null || features.length == 0) {
+////                Log.d("postexecute","no features");
+////                if (progressDialog != null && progressDialog.isShowing() && count.intValue() == 0)
+////                    progressDialog.dismiss();
+////
+////                return;
+////            }
+////            // Check if the requested PopupContainer id is the same as the current PopupContainer.
+////            // Otherwise, abandon the obsoleted query result.
+////            if (id != popupContainer.hashCode()) {
+////                Log.d("postexecute","something wrong with popup");
+////                if (progressDialog != null && progressDialog.isShowing() && count.intValue() == 0)
+////                    progressDialog.dismiss();
+////
+////                return;
+////            }
+////
+////            for (Feature fr : features) {
+////                Log.d("postexecute","createfeatures"+fr.getId());
+////
+////                Popup popup = featureLayer.createPopup(mMapView, 0, fr);
+////                popupContainer.addPopup(popup);
+////            }
+////            createPopupViews(features, id);
+////        }
+//    }
 
-                } catch (JSONException e) {
-                    Log.e("query", e.getMessage());
-                    e.printStackTrace();
-                }
-
-
-
-            } else {
-                Log.d("GOTNOTIFICATION", "NO");
-            }
-        }
-    }
+//
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        //super.onNewIntent(intent);
+//
+//            Bundle extras = intent.getExtras();
+//        if(extras!=null) {
+//            if (extras.containsKey("NewNotification")) {
+//                Log.d("GOTNOTIFICATION", extras.get("data").toString());
+//
+//                try {
+//                    //extras.get("data").toString().to
+//                    //JSONObject alljson = ((JSONObject) extras.get("data").toString());
+//
+//                    //Gson gson = new Gson();
+//                    String stringjson = extras.get("data").toString();
+//                    Log.e("stringjson",stringjson);
+//                    JSONObject alljson = new JSONObject(stringjson);
+//
+//
+//
+//
+//                    String title = alljson.getString("TITLE");
+//                    final int objectid = alljson.getInt("OBJECTID");
+//
+//                    Log.e("jsons", title+" "+objectid);
+//
+//                    Layer[] layers1 = mMapView.getLayers();
+//
+//                    count = new AtomicInteger();
+//                    // If the layer has not been initialized or is invisible, do nothing.
+////                        if (!layer.isInitialized() || !layer.isVisible())
+////                            continue;
+//                    for (final Layer layer : layers1)
+//                        if (layer instanceof ArcGISFeatureLayer) {
+//                            if (!layer.isInitialized() || !layer.isVisible())
+//                                continue;
+//
+//                            Query query = new Query();
+//                            String querystring = "OBJECTID="+objectid+" AND TITLE='"+title+"'";
+//                            Log.d("querystring", querystring);
+//                            query.setWhere(querystring);
+//
+//                            ((ArcGISFeatureLayer) layer).queryFeatures(query, new CallbackListener<FeatureSet>() {
+//                                @Override
+//                                public void onCallback(FeatureSet featureSet) {
+//                                    Log.e("length", "length: "+featureSet.getGraphics().length);
+//                                    if(featureSet!=null && featureSet.getGraphics().length>0) {
+//                                        popupContainer = new PopupContainer(mMapView);
+//                                        int id = popupContainer.hashCode();
+//                                        popupDialog = null;
+//
+//                                        Feature fr = featureSet.getGraphics()[0];
+//                                        ArrayList<Feature> features = new ArrayList<Feature>();
+//                                        features.add(fr);
+//
+//                                        Feature[] featarray = features.toArray(new Feature[0]);
+//
+//                                        for (Feature fr2 : featarray) {
+//                                            Popup popup = layer.createPopup(mMapView, 0, fr2);
+//                                            popupContainer.addPopup(popup);
+//                                        }
+//
+//                                        createPopupViews(featarray, id);
+//                                    }
+//
+//                                }
+//
+//                                @Override
+//                                public void onError(Throwable throwable) {
+//                                    Log.e("ERROR", throwable.getMessage());
+//
+//                                }
+//                            });
+////                            Feature feat1 = ((ArcGISFeatureLayer) layer).getGraphic(objectid);
+////                            if (feat1 != null) {
+////                                Object obj = feat1.getAttributeValue("TITLE");
+////                                Log.d("title", feat1.getAttributeValue("TITLE").toString());
+////                                if (((ArcGISFeatureLayer) layer).getGraphic(objectid).getAttributeValue("TITLE").toString().equalsIgnoreCase(title)) {
+////                                    Log.d("query", "a match");
+////                                    // Instantiate a PopupContainer
+////                                    popupContainer = new PopupContainer(mMapView);
+////                                    int id = popupContainer.hashCode();
+////                                    popupDialog = null;
+////
+////                                    Feature fr = ((ArcGISFeatureLayer) layer).getGraphic(objectid);
+////                                    ArrayList<Feature> features = new ArrayList<Feature>();
+////                                    features.add(fr);
+////
+////
+////                                    Popup popup = ((ArcGISFeatureLayer) layer).createPopup(mMapView, 0, fr);
+////                                    popupContainer.addPopup(popup);
+////                                    createPopupViews(features.toArray(new Feature[0]), id);
+////
+////                                } else {
+////                                    Log.d("query", "no match");
+////                                }
+////                            }
+//                        }
+//
+//                } catch (JSONException e) {
+//                    Log.e("query", e.getMessage());
+//                    e.printStackTrace();
+//                }
+//
+//
+//
+//            } else {
+//                Log.d("GOTNOTIFICATION", "NO");
+//            }
+//        }
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -578,20 +741,7 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    private class IdQuery extends AsyncTask<ArcGISFeatureLayer, Void, Feature[]> {
-        private int objectid;
-        private String title;
 
-        public IdQuery(int objectid, String title){
-            super();
-            this.objectid = objectid;
-            this.title = title;
-        }
-        @Override
-        protected Feature[] doInBackground(ArcGISFeatureLayer... params) {
-            return new Feature[0];
-        }
-    }
 
     // Query feature layer by hit test
     private class RunQueryFeatureLayerTask extends AsyncTask<ArcGISFeatureLayer, Void, Feature[]> {
@@ -671,6 +821,7 @@ public class MainActivity extends ActionBarActivity implements
         private PopupContainer popupContainer;
 
         public PopupDialog(Context context, PopupContainer popupContainer) {
+            //og.d("contextcontainer", context.toString());
             super(context, android.R.style.Theme);
             this.popupContainer = popupContainer;
         }

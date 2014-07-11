@@ -9,6 +9,8 @@ import android.net.NetworkInfo;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -241,6 +243,7 @@ public final class NetUtils {
     /**
      * Send a POST request with a "Content-Type" value of "application/json".
      *
+     * @param context
      * @param json json POST body
      * @param headers optional headers to send with the request
      * @param listener a {@link com.esri.UC.NetUtils.JsonRequestListener}.

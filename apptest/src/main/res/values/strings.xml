@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">UCTest</string>
+    <string name="app_name">San Diego Tour</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="play_services_dialog_cancel_toast">Google Play Services will help conserve your battery!</string>
@@ -13,6 +13,7 @@
     <string name="settings">Settings</string>
     <string name="cancel">Cancel</string>
     <string name="locate_button">Locate</string>
-
+    <string name="title_activity_secret_viprsvp">Secret VIP RSVP</string>
+    <string name="title_activity_super_secret_coupon">Super Secret Coupon</string>
 
 </resources>
