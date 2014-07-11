@@ -110,13 +110,11 @@ public class SuperSecretCoupon extends Activity {
 
     public void switchToMain() {
         Intent myIntent = new Intent(SuperSecretCoupon.this, MainActivity.class);
-        //myIntent.putExtra("key", value); //Optional parameters
         SuperSecretCoupon.this.startActivity(myIntent);
     }
 
     public void switchToSettings() {
         Intent myIntent = new Intent(SuperSecretCoupon.this, SettingsActivity.class);
-        //myIntent.putExtra("key", value); //Optional parameters
         SuperSecretCoupon.this.startActivity(myIntent);
     }
 }

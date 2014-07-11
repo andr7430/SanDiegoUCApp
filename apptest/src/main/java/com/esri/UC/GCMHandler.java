@@ -36,9 +36,6 @@ public class GCMHandler extends GeotriggerBroadcastReceiver {
             Log.e("data", notification.get("data").toString());
             String msg = String.format("Push Message Received: %s", notification.get("data"));
 
-
-            //Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(context)
                             .setSmallIcon(R.drawable.ic_launcher)
