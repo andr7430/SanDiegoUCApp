@@ -146,6 +146,10 @@ public class MainActivity extends ActionBarActivity implements
             }
         });
 
+        SharedPreferences prefs = getSharedPreferences(MainActivity.class.getSimpleName(),Context.MODE_PRIVATE);
+        String registrationId = prefs.getString("registration_id","");
+        Log.d("registration", registrationId);
+
     }
 
     @Override
@@ -231,6 +235,7 @@ public class MainActivity extends ActionBarActivity implements
 
             settings.edit().putBoolean("myfirsttime", false).commit();
         }
+
     }
 
 
